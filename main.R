@@ -1,3 +1,4 @@
+rm(list=ls())
 library(dplyr)
 library(caret)
 library(Matrix)
@@ -36,11 +37,11 @@ Y<- data.matrix(Y)
 
 # Initiate parameters
 matrix_beta <- create_simmmetryc_matrix(total_continuous,total_continuous)
-diag(matrix_beta) <- 10
+diag(matrix_beta) <- 5
 vector_alpha <- create_simmmetryc_matrix(1,total_continuous) # CONT
 matrix_rho <- create_simmmetryc_matrix(total_continuous,total_levels)
 matrix_phi <- create_simmmetryc_matrix(total_levels,total_levels)
-lambda <-  5*sqrt(log(total_continuous+total_discrete)/total_rows)
+lambda <-  0.01
 
 param_vec<- convert_params_to_vector(vector_alpha = vector_alpha,
                                      matrix_beta = matrix_beta,
@@ -59,8 +60,17 @@ results<- proxGD(X = X,Y = Y,
                  n = total_rows,
                  p = total_continuous,
                  q = total_discrete,
-                 iter = 10000
+                 iter = 200
                  )
+
+param_list <- convert_vector_to_params(param_vector = results$optimal_params ,
+                                       levels_per_variable = levels_per_variable,
+                                       p = total_continuous,
+                                       q = total_discrete)
+final_vector_alpha<- param_list[[1]]
+final_matrix_beta<- param_list[[2]]
+final_matrix_rho<- param_list[[3]]
+final_matrix_phi  <- param_list[[4]]
 
 
 

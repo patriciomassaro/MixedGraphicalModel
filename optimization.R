@@ -12,7 +12,7 @@ proxGD <- function(X,Y,
                    n,p,q,
                    gamma=0.0001,
                    iter=5,
-                   conv=1e-10){
+                   conv=1e-4){
     # X: n x p matrix
     # Y: n x q matrix
     # initial_param_vector: p + p*p + p*q + q*q vector
@@ -49,7 +49,6 @@ proxGD <- function(X,Y,
   message <- "Convergence not reached..."
   
   for (t in 1:iter) {
-    # Update u, beta and obj
     gradient <- calculate_gradient(param_vector = parameters[,t],
                                    X = X,Y = Y,
                                    levels_per_variable = levels_per_variable,
@@ -79,7 +78,7 @@ proxGD <- function(X,Y,
     delta <- abs(obj[t+1]-obj[t]) /(abs(obj[t])+conv)
     if (delta < conv) {
       # Remove excess parameters and objectives
-      parameters <- parameters[, -((t+2):ncol(beta))]
+      parameters <- parameters[, -((t+2):ncol(parameters))]
       obj <- obj[-((t+2):length(obj))]
       
       # Update convergence message
@@ -88,8 +87,8 @@ proxGD <- function(X,Y,
     }
   }
   
-  result <- list("optimal_parames"=parameters[,ncol(parameters)],
-                 "parameters_matrix"=parameters,
+  result <- list("optimal_params"=parameters[,ncol(parameters)],
+                 "params_history"=parameters,
                  "objective"=obj,
                  "conv"=message)
   return(result)

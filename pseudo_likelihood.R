@@ -88,7 +88,7 @@ calculate_continuous_pseudo_likelihood <- function(X,Y,
   
   # Calculate the second term of the continuous pseudo likelihood
   continuous_pseudo_likelihood <- continuous_pseudo_likelihood +
-    .5 * norm((X - alpha_component + X_no_diag - Y_rho) %*% diag(sqrt(diag_beta)),
+    .5 * norm((-X + alpha_component - X_no_diag + Y_rho) %*% diag(sqrt(diag_beta)),
               type = 'F')^2
   
   # Issue here, the matlab code has different sigs and the alpha are not divided by diag_beta
