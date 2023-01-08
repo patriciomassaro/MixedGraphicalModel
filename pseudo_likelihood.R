@@ -97,10 +97,7 @@ calculate_continuous_pseudo_likelihood <- function(X,Y,
 }
 
 calculate_pseudo_likelihood <- function(X,Y,
-                                        matrix_beta,
-                                        vector_alpha,
-                                        matrix_rho,
-                                        matrix_phi,
+                                        param_vec,
                                         levels_per_variable,total_levels,
                                         n,p,q){
   # Calculate the pseudo likelihood
@@ -112,6 +109,17 @@ calculate_pseudo_likelihood <- function(X,Y,
   # matrix_phi: the matrix of the phi parameters (q,q)
   # return: the pseudo likelihood
   # Number of continouous variables
+  
+  param_list <- convert_vector_to_params(param_vector = param_vec,
+                                         levels_per_variable = levels_per_variable,
+                                         p = p,
+                                         q = q)
+  vector_alpha<- matrix(param_list[[1]],1,p)
+  matrix_beta<- param_list[[2]]
+  matrix_rho<- param_list[[3]]
+  matrix_phi  <- param_list[[4]]
+  
+  
   
   # Force simmetry 
   matrix_beta <- force_simmetry(matrix_beta)

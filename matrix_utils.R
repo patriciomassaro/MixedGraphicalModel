@@ -11,7 +11,7 @@ force_simmetry <- function(input_matrix){
 
 
 create_simmmetryc_matrix<- function(nrows,ncols){
-  mat <- matrix(rnorm(ncols*nrows,mean=0,sd=0.1),
+  mat <- matrix(0,
                 nrows,
                 ncols)
   

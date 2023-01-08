@@ -3,6 +3,7 @@ library(caret)
 library(Matrix)
 
 source ("matrix_utils.R")
+source("preprocessing_utils.R")
 
 calculate_gradient_beta<- function(matrix_beta_no_diag,diag_beta,
                                    matrix_rho,
@@ -21,7 +22,7 @@ calculate_gradient_beta<- function(matrix_beta_no_diag,diag_beta,
     # add the diagonal component
     gradient_beta_diag <- rep(0, p)
     for (i in 1:p){
-        gradient_beta_diag[i] <- ( n / (2*diag_beta[i]) ) + 0.5 * norm(res[,i],type = '2')^2 - res[,i] %*% (X_beta[,i] + Y_rho[,i])
+        gradient_beta_diag[i] <- - ( n / (2*diag_beta[i]) ) + 1/2*norm(res[,i],type = '2')^2 - res[,i] %*% (X_beta[,i] + Y_rho[,i])
     }
 
     # add the diagonal component to the gradient
@@ -75,23 +76,28 @@ calculate_gradient_rho_and_phi <- function(X,Y,
   return(list(grad_rho,grad_phi))
 }
 
-calculate_gradient <- function(matrix_beta,
-                               matrix_rho,
-                               matrix_phi,
-                               vector_alpha,
+calculate_gradient <- function(param_vector,
                                X,Y,levels_per_variable,
                                p,q,n){
 # Calculates the gradient of the pseudo-likelihood function ( our smooth F)
-# matrix_beta: p x p matrix
-# matrix_rho: p x q matrix
-# matrix_phi: q x q matrix
-# vector_alpha: 1 x p matrix
+#  param_vector: p + p*p + p*q + q*q vector
 # X: n x p matrix
 # Y: n x total_levels matrix
 # levels_per_variable: 1 x q matrix
 # n: number of rows
 # p: number of continuous variables
 # q: number of discrete variables
+  
+  
+  param_list <- convert_vector_to_params(param_vector = param_vector,
+                                         levels_per_variable = levels_per_variable,
+                                         p = p,
+                                         q = q)
+  vector_alpha<- matrix(param_list[[1]],1,p)
+  matrix_beta<- param_list[[2]]
+  matrix_rho<- param_list[[3]]
+  matrix_phi  <- param_list[[4]]
+  
   total_levels = sum(levels_per_variable)
   cumsum_levels = cumsum(levels_per_variable)
 
@@ -122,10 +128,10 @@ calculate_gradient <- function(matrix_beta,
                                        Y_rho = Y_rho,
                                        res = res,
                                        n=n,p=p,q=q
-                                       )
+                                       )/n
 
   grad_alpha <- calculate_gradient_alpha(matrix_beta = matrix_beta,
-                                         res=res)
+                                         res=res)/n
   
   
   aux <- calculate_gradient_rho_and_phi(X = X,Y = Y,res = res,
@@ -135,11 +141,20 @@ calculate_gradient <- function(matrix_beta,
                                         q = q
                                         )
   # Expand the list with rho and phi
-  grad_rho <- aux[[1]]
-  grad_phi <- aux[[2]]
+  grad_rho <- aux[[1]]/n
+  grad_phi <- aux[[2]]/n
   
+  
+  # Create vector from gradients
+  gradient_vec<- convert_params_to_vector(vector_alpha = grad_alpha,
+                                       matrix_beta = grad_beta,
+                                       matrix_rho = grad_rho,
+                                       matrix_phi = grad_phi,
+                                       levels_per_variable = levels_per_variable,
+                                       p = p,
+                                       q = q)  
 
 
-  return(list(grad_beta/n,grad_alpha/n,grad_rho/n,grad_phi/n))
+  return(gradient_vec)
 }
 
