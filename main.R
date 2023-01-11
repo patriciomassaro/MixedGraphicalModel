@@ -37,7 +37,7 @@ Y<- data.matrix(Y)
 
 # Initiate parameters
 matrix_beta <- create_simmmetryc_matrix(total_continuous,total_continuous)
-diag(matrix_beta) <- 5
+diag(matrix_beta) <- 1
 vector_alpha <- create_simmmetryc_matrix(1,total_continuous) # CONT
 matrix_rho <- create_simmmetryc_matrix(total_continuous,total_levels)
 matrix_phi <- create_simmmetryc_matrix(total_levels,total_levels)
@@ -60,7 +60,7 @@ results<- proxGD(X = X,Y = Y,
                  n = total_rows,
                  p = total_continuous,
                  q = total_discrete,
-                 iter = 200
+                 iter = 15
                  )
 
 param_list <- convert_vector_to_params(param_vector = results$optimal_params ,
@@ -73,4 +73,4 @@ final_matrix_rho<- param_list[[3]]
 final_matrix_phi  <- param_list[[4]]
 
 
-
+print(results$objective)

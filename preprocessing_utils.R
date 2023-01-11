@@ -2,6 +2,9 @@ library(dplyr)
 library(caret)
 library(Matrix)
 
+
+source("matrix_utils.R")
+
 clean_survey_data <- function(data){
   # Drop IDs and region ( has only 1 value)
   drops <- c("X.1","X",'region')
@@ -37,11 +40,11 @@ convert_params_to_vector <- function(vector_alpha,
   # alpha
   param_vector[1:cumsum_sizes[1]]=vector_alpha
   #beta
-  param_vector[(cumsum_sizes[1]+1):cumsum_sizes[2]]<- as.vector(matrix_beta)
+  param_vector[(cumsum_sizes[1]+1):cumsum_sizes[2]]<- as.vector(force_simmetry(matrix_beta))
   #rho
   param_vector[(cumsum_sizes[2]+1):cumsum_sizes[3]] <- as.vector(matrix_rho)
   #phi
-  param_vector[(cumsum_sizes[3]+1):cumsum_sizes[4]] <- as.vector(matrix_phi)
+  param_vector[(cumsum_sizes[3]+1):cumsum_sizes[4]] <- as.vector(force_simmetry(matrix_phi))
   
   return(param_vector)
   
@@ -57,13 +60,12 @@ convert_vector_to_params<- function(param_vector,
   cumsum_sizes <- cumsum(param_sizes)
   
   vector_alpha <- param_vector[1:cumsum_sizes[1]]
-  matrix_beta <- matrix(param_vector[(cumsum_sizes[1]+1):cumsum_sizes[2]],
-                           p,p)
+  matrix_beta <- force_simmetry(matrix(param_vector[(cumsum_sizes[1]+1):cumsum_sizes[2]],p,p))
   matrix_rho <- matrix(param_vector[(cumsum_sizes[2]+1):cumsum_sizes[3]],
                        p,total_levels)
   
-  matrix_phi <- matrix(param_vector[(cumsum_sizes[3]+1):cumsum_sizes[4]],
-                       total_levels,total_levels)
+  matrix_phi <- force_simmetry(matrix(param_vector[(cumsum_sizes[3]+1):cumsum_sizes[4]],
+                       total_levels,total_levels))
   
   return(list(vector_alpha,matrix_beta,matrix_rho,matrix_phi))
   

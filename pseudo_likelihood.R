@@ -42,9 +42,9 @@ calculate_discrete_pseudo_likelihood <- function(X,Y,
     aux_matrix_w <- matrix_w[,lower_bound:upper_bound]
     aux_matrix_Y <- Y[,lower_bound:upper_bound]
     # calculate the softmax denominator for each row ( using all levels)
-    # TODO: Change to use the correct column
     aux_denominator <- apply(aux_matrix_w, 1, function(x) sum(exp(x)))
     
+    # Get the denominator corresponding to the variable that has a one.
     matrix_numerators= exp(aux_matrix_w)*aux_matrix_Y
     aux_numerator <- apply(matrix_numerators, 1, function(x) sum(x))
     
@@ -77,21 +77,19 @@ calculate_continuous_pseudo_likelihood <- function(X,Y,
   
   # First term of the likelihood
   continuous_pseudo_likelihood <- - n / 2 * sum(log(diag_beta))
-  
   # substract the diagonal to beta
   matrix_beta_no_diag <- matrix_beta - diag(diag(matrix_beta))
-  matrix_beta_no_diag<- force_simmetry(matrix_beta_no_diag)
+  
   X_no_diag <- X %*% matrix_beta_no_diag %*% diag(1/diag_beta)
   Y_rho <- Y %*% t(matrix_rho) %*%  diag(1/diag_beta)
   # Alpha Component
-  alpha_component <- e %*% vector_alpha %*% diag(1/diag_beta)
+  alpha_component <- e %*% vector_alpha 
+                     #%*% diag(1/diag_beta)
   
   # Calculate the second term of the continuous pseudo likelihood
   continuous_pseudo_likelihood <- continuous_pseudo_likelihood +
-    .5 * norm((-X + alpha_component - X_no_diag + Y_rho) %*% diag(sqrt(diag_beta)),
+    .5 * norm((X - alpha_component - X_no_diag - Y_rho) %*% diag(sqrt(diag_beta)),
               type = 'F')^2
-  
-  # Issue here, the matlab code has different sigs and the alpha are not divided by diag_beta
   
   return(continuous_pseudo_likelihood)
 }
@@ -118,14 +116,6 @@ calculate_pseudo_likelihood <- function(X,Y,
   matrix_beta<- param_list[[2]]
   matrix_rho<- param_list[[3]]
   matrix_phi  <- param_list[[4]]
-  
-  
-  
-  # Force simmetry 
-  matrix_beta <- force_simmetry(matrix_beta)
-  matrix_phi <- force_simmetry(matrix_phi)
-  
-
   
   continuous_pseudo_likelihood <- calculate_continuous_pseudo_likelihood(X,Y,
                                                                          matrix_beta,

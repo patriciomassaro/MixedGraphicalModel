@@ -10,7 +10,7 @@ proxGD <- function(X,Y,
                    levels_per_variable,
                    total_levels,
                    n,p,q,
-                   gamma=0.0001,
+                   gamma=0.00001,
                    iter=5,
                    conv=1e-4){
     # X: n x p matrix
@@ -49,6 +49,7 @@ proxGD <- function(X,Y,
   message <- "Convergence not reached..."
   
   for (t in 1:iter) {
+    cat("Iteration: ", t)
     gradient <- calculate_gradient(param_vector = parameters[,t],
                                    X = X,Y = Y,
                                    levels_per_variable = levels_per_variable,
