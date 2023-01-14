@@ -15,7 +15,7 @@ calculate_gradient_beta<- function(matrix_beta_no_diag,diag_beta,
                                    res,
                                    n,p,q){
     #compute the gradient
-    gradient_beta = t(X) %*% res
+    gradient_beta = -t(X) %*% res
     # zero the diagonal and 
     gradient_beta_diag <- diag(gradient_beta)
     gradient_beta_no_diag <- gradient_beta - diag(gradient_beta_diag)
@@ -26,8 +26,8 @@ calculate_gradient_beta<- function(matrix_beta_no_diag,diag_beta,
         gradient_beta_diag[i] <- - ( n / (2*diag_beta[i]) )
                                  + 1/2*norm(res[,i],type = '2')^2 
                                  + res[,i] %*% (+X_beta[,i] 
-                                                + Y_rho[,i]
-                                                #-alpha_component[,i]
+                                                - Y_rho[,i]
+                                                -alpha_component[,i]
                                                 )
     }
 
@@ -42,15 +42,10 @@ calculate_gradient_beta<- function(matrix_beta_no_diag,diag_beta,
 
 
 
-calculate_gradient_alpha <- function(matrix_beta,
-                                     X,
-                                     diag_beta,
-                                     X_beta,
-                                     Y_rho,
-                                     n,
-                                     vector_alpha){
-  grad_alpha <- -diag(diag_beta) %*% matrix(colSums(X-X_beta-Y_rho))
-                + diag(diag_beta) %*% t(vector_alpha) *n
+calculate_gradient_alpha <- function(res){
+  grad_alpha <- matrix(colSums(res))
+  # Matlab code says   diag(diag_beta) %*% colSums(res)
+                
   return (grad_alpha)
   
 }
@@ -67,7 +62,9 @@ calculate_gradient_rho_and_phi <- function(X,Y,
     upper_bound = cumsum_levels[i]
     
     aux_matrix_w <- matrix_w[,lower_bound:upper_bound]
+    aux_matrix_w <- aux_matrix_w - apply(aux_matrix_w, 1, max)
     aux_matrix_Y <- Y[,lower_bound:upper_bound]
+    
     
     aux_denominator <- apply(aux_matrix_w, 1, function(x) sum(exp(x)))
     aux_matrix_w = diag(1/aux_denominator) %*% exp(aux_matrix_w) - aux_matrix_Y 
@@ -117,7 +114,7 @@ calculate_gradient <- function(param_vector,
   diag_beta <- diag(matrix_beta)
   matrix_beta_no_diag <-matrix_beta - diag(diag_beta)
 
-  # substract the diagonal of the phi matrix and force symmetry
+  # substract the diagonal of the phi 
   diag_phi <- diag(matrix_phi)
   matrix_phi_no_diag <- matrix_phi - diag(diag_phi)
 
@@ -126,7 +123,7 @@ calculate_gradient <- function(param_vector,
   Y_rho = Y %*% t(matrix_rho) %*% diag(1/diag_beta)
   e <- rep(1, n)
   alpha_component = e %*% vector_alpha  %*% diag(1/diag_beta)
-  res <- X_beta - X + alpha_component + Y_rho
+  res <- - X_beta - X + alpha_component + Y_rho
   matrix_w <- X %*% matrix_rho + Y %*% matrix_phi_no_diag + e %*% matrix(diag_phi,1)
   
   
@@ -143,13 +140,7 @@ calculate_gradient <- function(param_vector,
                                        n=n,p=p,q=q
                                        )/n
 
-  grad_alpha <- calculate_gradient_alpha(matrix_beta = matrix_beta,
-                                         X = X,
-                                         diag_beta = diag_beta,
-                                         X_beta = X_beta,
-                                         Y_rho = Y_rho,
-                                         vector_alpha = vector_alpha,
-                                         n=n)/n 
+  grad_alpha <- calculate_gradient_alpha(res = res)/n
   
   
   aux <- calculate_gradient_rho_and_phi(X = X,Y = Y,res = res,

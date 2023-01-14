@@ -40,6 +40,7 @@ calculate_discrete_pseudo_likelihood <- function(X,Y,
     
     # get the inside part of the softmax for the discrete variable
     aux_matrix_w <- matrix_w[,lower_bound:upper_bound]
+    aux_matrix_w <- aux_matrix_w - apply(aux_matrix_w, 1, max)
     aux_matrix_Y <- Y[,lower_bound:upper_bound]
     # calculate the softmax denominator for each row ( using all levels)
     aux_denominator <- apply(aux_matrix_w, 1, function(x) sum(exp(x)))
@@ -72,23 +73,22 @@ calculate_continuous_pseudo_likelihood <- function(X,Y,
   
   # get the diagonal of beta matrix to calculate the first term ( beta_ss)
   diag_beta <- diag(matrix_beta)
+  # substract the diagonal to beta
+  matrix_beta_no_diag <- matrix_beta - diag(diag(matrix_beta))
   # create a vectors of ones to do the sum as a matrix multiplication
   e <- rep(1, n)
   
+  
   # First term of the likelihood
   continuous_pseudo_likelihood <- - n / 2 * sum(log(diag_beta))
-  # substract the diagonal to beta
-  matrix_beta_no_diag <- matrix_beta - diag(diag(matrix_beta))
   
+  # Second component
   X_no_diag <- X %*% matrix_beta_no_diag %*% diag(1/diag_beta)
   Y_rho <- Y %*% t(matrix_rho) %*%  diag(1/diag_beta)
-  # Alpha Component
-  alpha_component <- e %*% vector_alpha 
-                     #%*% diag(1/diag_beta)
+  alpha_component <- e %*% vector_alpha %*% diag(1/diag_beta)
   
-  # Calculate the second term of the continuous pseudo likelihood
   continuous_pseudo_likelihood <- continuous_pseudo_likelihood +
-    .5 * norm((X - alpha_component - X_no_diag - Y_rho) %*% diag(sqrt(diag_beta)),
+    .5 * norm(( - X + alpha_component - X_no_diag + Y_rho) %*% diag(sqrt(diag_beta)),
               type = 'F')^2
   
   return(continuous_pseudo_likelihood)

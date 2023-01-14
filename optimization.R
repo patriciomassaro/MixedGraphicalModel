@@ -10,7 +10,9 @@ proxGD <- function(X,Y,
                    levels_per_variable,
                    total_levels,
                    n,p,q,
-                   gamma=0.00001,
+                   cont_weights,
+                   cat_weights,
+                   gamma=0.002,
                    iter=5,
                    conv=1e-4){
     # X: n x p matrix
@@ -42,20 +44,24 @@ proxGD <- function(X,Y,
   obj[1] <- obj[1] + calculate_penalization(param_vector = initial_param_vector,
                                             lambda = lambda,
                                             n = n,p = p,q = q,
-                                            levels_per_variable = levels_per_variable
+                                            levels_per_variable = levels_per_variable,
+                                            cat_weights=cat_weights,
+                                            cont_weights=cont_weights
                                             )
   
   # Initialize convergence message in case convergence not reached
   message <- "Convergence not reached..."
   
   for (t in 1:iter) {
-    cat("Iteration: ", t)
+    # Print iteration every 250 iterations
+
     gradient <- calculate_gradient(param_vector = parameters[,t],
                                    X = X,Y = Y,
                                    levels_per_variable = levels_per_variable,
                                    p = p,q = q,n = n)
     
     u <- parameters[,t] - gamma * gradient
+
     parameters[,t+1] <- calculate_proximal(param_vector = u,
                                            scaled_lambda = gamma*lambda,
                                            levels_per_variable = levels_per_variable,
@@ -72,18 +78,24 @@ proxGD <- function(X,Y,
     obj[t+1]<- obj[t+1]+ calculate_penalization(param_vector = parameters[,t+1],
                                                 lambda = lambda,
                                                 levels_per_variable = levels_per_variable,
-                                                n = n,p = p,q = q
+                                                n = n,p = p,q = q,
+                                                cat_weights=cat_weights,
+                                                cont_weights=cont_weights
                                                 )
+        if (t %% 250 == 0){
+      cat("Iteration: ", t,"objective: ", obj[t+1],"\n")
+    }
     
     # Check convergence
     delta <- abs(obj[t+1]-obj[t]) /(abs(obj[t])+conv)
-    if (delta < conv) {
+    if (delta < conv || is.na(delta)) {
       # Remove excess parameters and objectives
       parameters <- parameters[, -((t+2):ncol(parameters))]
       obj <- obj[-((t+2):length(obj))]
       
       # Update convergence message
       message <- sprintf("Convergence reached after %i iterations", (t+1))
+      cat("Converged!! Iteration: ",t+1,"objective: ", obj[t+1],"\n" )
       break
     }
   }

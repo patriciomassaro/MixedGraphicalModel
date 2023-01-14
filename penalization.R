@@ -94,7 +94,11 @@ calculate_proximal <- function(param_vector, scaled_lambda,p,q,levels_per_variab
   
   
 
-calculate_penalization <- function(param_vector,lambda,n,p,q,levels_per_variable)
+calculate_penalization <- function(param_vector,
+                                   lambda,
+                                   n,p,q,levels_per_variable,
+                                   cont_weights,
+                                   cat_weights)
 {
   # Calculate the penalization term
   # param_vector: a vector that can be converted to all the parameters
@@ -114,11 +118,15 @@ calculate_penalization <- function(param_vector,lambda,n,p,q,levels_per_variable
   matrix_rho<- param_list[[3]]
   matrix_phi  <- param_list[[4]]
   
+  beta_weights <- t(cont_weights) %*% cont_weights
+  rho_weights <- t(cont_weights) %*% cat_weights
+  phi_weights <- t(cat_weights) %*% cat_weights
   # Get the cumsum of the levels_per_variable
   cumsum_levels <- cumsum(levels_per_variable)
   
   # Calculate the norm of beta
-  norm_beta <- sum(abs(matrix_beta))
+  
+  norm_beta <- sum(abs((matrix_beta - diag(matrix_beta))*beta_weights))
   
   # Calculate the penalization term for rho matrix
   norm_rho <- 0
@@ -131,8 +139,8 @@ calculate_penalization <- function(param_vector,lambda,n,p,q,levels_per_variable
       lower_bound <- cummulated_levels_in_this_variable-levels_in_this_varible+1
       upper_bound <- cummulated_levels_in_this_variable
       aux_matrix_rho <- matrix_rho[i,lower_bound:upper_bound]
-      
-      norm_rho <- norm_rho + norm(aux_matrix_rho, type="2")
+      weight <- rho_weights[i,j]
+      norm_rho <- norm_rho + norm(aux_matrix_rho*weight, type="2")
     }
   }
   
@@ -152,9 +160,10 @@ calculate_penalization <- function(param_vector,lambda,n,p,q,levels_per_variable
         lower_bound_k <- cummulated_levels_in_k-levels_in_k+1
         upper_bound_j <- cummulated_levels_in_j
         upper_bound_k <- cummulated_levels_in_k
+        weight<- phi_weights[j,k]
         
         aux_matrix_phi <- matrix_phi[lower_bound_j:upper_bound_j,lower_bound_k:upper_bound_k]
-        norm_phi <- norm_phi + norm(aux_matrix_phi, type="F")
+        norm_phi <- norm_phi + norm(aux_matrix_phi*weight, type="F")
       }
       
       
