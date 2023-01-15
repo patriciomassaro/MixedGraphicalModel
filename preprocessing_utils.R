@@ -7,7 +7,7 @@ source("matrix_utils.R")
 
 clean_survey_data <- function(data){
   # Drop IDs and region ( has only 1 value)
-  drops <- c("X.1","X",'region',"wage")
+  drops <- c("X.1","X",'region',"wage","year")
   data <- data[, !(names(data) %in% drops)]
   return(data)
 }
