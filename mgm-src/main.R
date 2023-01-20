@@ -11,7 +11,7 @@ source("optimization.R")
 source("plots.R")
 
 #load the data
-data <- read.csv("data/Mid-Atlantic_Wage_Data_974_40.csv")
+data <- read.csv("../data/Mid-Atlantic_Wage_Data_974_40.csv")
 # convert year column to str
 data[,3] <- as.character(data[,3])
 data <- clean_survey_data(data)
@@ -109,7 +109,7 @@ ggplot(df, aes(x=LogLambda)) +
   geom_line( aes(y=objective, color="objective") ) + 
   geom_point(aes(y=objective,color="objective"))+
   geom_line( aes(y=non_zero_params, color="non_zero_params")) +
-  geom_point(aes(y=non_zero_params,color="non_zero_params"))
+  geom_point(aes(y=non_zero_params,color="non_zero_params")) +
   scale_y_continuous(
     name = "Objective",
     sec.axis = sec_axis(~.*1, name="Number of non-zero parameters")
@@ -156,7 +156,7 @@ results<- proxGD(X = X,Y = Y,
                  conv=1e-5
 )
 
-param_list <- convert_vector_to_params(param_vector = results$optimal_params ,
+param_list <- convert_vector_to_params(param_vector = param_df$results.optimal_params ,
                                        levels_per_variable = levels_per_variable,
                                        p = total_continuous,
                                        q = total_discrete)
