@@ -2,7 +2,7 @@ library(dplyr)
 library(caret)
 library(Matrix)
 
-source("matrix_utils.R")
+source("mgm-src/matrix_utils.R")
 
 calculate_discrete_pseudo_likelihood <- function(X,Y,
                                                  matrix_rho,

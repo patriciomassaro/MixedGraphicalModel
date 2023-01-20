@@ -1,8 +1,8 @@
 
-source("penalization.R")
-source("preprocessing_utils.R")
-source("pseudo_likelihood.R")
-source("gradient.R")
+source("mgm-src/penalization.R")
+source("mgm-src/preprocessing_utils.R")
+source("mgm-src/pseudo_likelihood.R")
+source("mgm-src/gradient.R")
 
 proxGD <- function(X,Y,
                    initial_param_vector,

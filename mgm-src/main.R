@@ -5,13 +5,13 @@ library(Matrix)
 library(ggplot2)
 
 
-source("matrix_utils.R")
-source("preprocessing_utils.R")
-source("optimization.R")
-source("plots.R")
+source("mgm-src/matrix_utils.R")
+source("mgm-src/preprocessing_utils.R")
+source("mgm-src/optimization.R")
+source("mgm-src/plots.R")
 
 #load the data
-data <- read.csv("../data/Mid-Atlantic_Wage_Data_974_40.csv")
+data <- read.csv("data/Mid-Atlantic_Wage_Data_974_40.csv")
 # convert year column to str
 data[,3] <- as.character(data[,3])
 data <- clean_survey_data(data)
@@ -156,7 +156,7 @@ results<- proxGD(X = X,Y = Y,
                  conv=1e-5
 )
 
-param_list <- convert_vector_to_params(param_vector = param_df$results.optimal_params ,
+param_list <- convert_vector_to_params(param_vector = results$optimal_params ,
                                        levels_per_variable = levels_per_variable,
                                        p = total_continuous,
                                        q = total_discrete)

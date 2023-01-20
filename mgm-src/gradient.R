@@ -2,8 +2,8 @@ library(dplyr)
 library(caret)
 library(Matrix)
 
-source ("matrix_utils.R")
-source("preprocessing_utils.R")
+source ("mgm-src/matrix_utils.R")
+source("mgm-src/preprocessing_utils.R")
 
 calculate_gradient_beta<- function(matrix_beta_no_diag,diag_beta,
                                    matrix_rho,
