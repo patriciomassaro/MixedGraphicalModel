@@ -10,3 +10,9 @@ Code used for the Modelling under dependence Seminar, based on the work of [Lee 
  - matrix_utils.R :  common matrix functions used 
  - preprocessing_utils.R : common functions to process data 
  - plots.R : Plot generating functions.
+
+
+## Documents
+
+- [Presentation](Presentation.pdf)
+- [Report](Report.pdf)
