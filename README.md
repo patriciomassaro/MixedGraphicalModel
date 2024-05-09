@@ -1,6 +1,6 @@
-# MixedGraphicalModel
+# Mixed Graphical Model
 
-Code used to get the results presented for the Modelling under dependence Seminar, based on the work of [Lee and Hastie](https://hastie.su.domains/Papers/structmgm.pdf). Just install the libraries used and source main.R in the mgm-src folder
+Code used for the Modelling under dependence Seminar, based on the work of [Lee and Hastie](https://hastie.su.domains/Papers/structmgm.pdf). Just install the libraries used and source main.R in the mgm-src folder
 
  - main.R : Main script 
  - optimization.R : Proximal gradient procedure to minimize the objective
